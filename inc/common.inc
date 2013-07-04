@@ -32,11 +32,26 @@ $form = <<<EOT
 		</table>
 	</form>
 EOT;
-require '/conf/settings.php';
+
+require 'conf/settings2.php';
 function db_connect() {
-	require '/conf/settings.php';
-	$db = mysql_connect($db_info['host'],$db_info['user'],$db_info['password']);
-	mysql_select_db($db_info['db_name']);
+	global $db_info;
+
+	if ($db_info['port'] != 3306) { // mysql default
+		$host = $db_info['host'] . ':' . $db_info['port'];
+	} else {
+		$host = $db_info['host'];
+	}
+
+	try {
+		$db = mysql_connect($host, $db_info['user'], $db_info['password']);
+		mysql_select_db($db_info['db_name']);
+	} catch (Exception $e) {
+		// Pretty sure I do not know what I am doing here
+		echo 'Couldn\'t connect to db. Check your db configurations.\n';
+		var_dump($e->getMessage());
+		exit();
+	}
 	return $db;
 }
 
@@ -174,8 +189,8 @@ function history($offset = 0) {
 				$rows[] = $row;
 			}
 		}
-	} else {
-		$history = '<tr class="default_row"><td><a href="/default/default.gif" target="_blank"><img class="tabled" src="/default/default_frame.gif" /></a></td><td>--</td><td>--</td></tr>';
+	} else { // isnt always right, now that pagination is real
+		$history = '<tr class="default"><td><a href="default/default.gif" target="_blank"><img class="tabled" src="default/default_frame.gif" /></a></td><td>--</td><td>--</td></tr>';
 	}
 	mysql_close();
 
@@ -257,7 +272,7 @@ function emit($filename) {
 }
 
 /*
- * New output format
+ * img_list
  */
 function img_list($offset = 0) {
 	$list_to_return = array(
@@ -279,30 +294,34 @@ function img_list($offset = 0) {
 	} else {
 		// there were no db results. maybe your confs are wrong,
 		// or you're just getting started!
-		$img_list = '<div class="frame"><div class="inner"><a href="/default/default.gif" target="_blank"><img src="/default/default_frame.gif" /></a></div><div class="controls btn-group"><button class="btn btn-warn btn-disabled">Display</button><button class="btn btn-disabled">Remove</button><button class="btn btn-disabled">Tweet</button></div></div>';
+		$list_to_return['end_of_list'] = 1;
+		$img_list = '<div class="frame default filled"><div class="inner"><a href="default/default.gif" target="_blank"><img src="default/default_frame.gif" /></a></div><div class="controls btn-group"><button class="btn btn-warn btn-disabled">Display</button><button class="btn btn-disabled">Remove</button><button class="btn btn-disabled">Tweet</button></div></div>';
 	}
 	mysql_close();
 
+	// only enter this block if there were results from the db
 	if(!isset($img_list)) {
 		$img_list = '';
 		foreach($rows as $row) {
-			$img_list .= '<div class="frame"><div class="inner">';
-			$frame = '/archive/frames/' . $row['file'];
-			$file = '/archive/' . $row['file'];
+			$img_list .= '<div class="frame filled"><div class="inner">';
+			$frame = 'archive/frames/' . $row['file'];
+			$file = 'archive/' . $row['file'];
 			$img_list .= '<a href="' . $file . '" target="_blank"><img src="' . $frame . '" /></a></div>';
 			if($row['displayed']) {
 				$img_list .= '<div class="controls btn-group"><button class="btn btn-info">Display</button><button class="btn btn-warn">Remove</button><button class="btn">Tweet</button></div></div>';
 			} else {
 				$img_list .= '<div class="controls btn-group"><button class="btn">Display</button><button class="btn btn-warn">Remove</button><button class="btn">Tweet</button></div></div>';
 			}
-			
 		}
 	}
 	$list_to_return['html_string'] = $img_list;
 	return json_encode($list_to_return);
 }
 
-// get distinct filenames from history
+
+/*
+ * get distinct filenames from history
+ */
 function filelist() {
 	$db = db_connect();
 	$sql = "SELECT DISTINCT file FROM `history`";
@@ -315,3 +334,11 @@ function filelist() {
 	}
 	return json_encode($result);
 }
+
+/*
+ * return a string to write in the index.php file, for the socket.io client code.
+ */
+function write_socket_client() {
+	return "<script src=\"" . $socket_info['host'] . ':' . $socket_info['port'] . "/socket.io/socket.io.js\"></script>";
+}
+

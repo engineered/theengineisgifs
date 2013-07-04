@@ -1,12 +1,10 @@
 TODO
-settings
-- page title? NEEDS TO BE CLEAN
-- url
-- node url and port
-- cron enable and disable
 
-table structure
-- logic to create db if it doesn't exist
+//settings
+//- page title? needs to be clean?
+//- url
+//- node url and port
+//- cron enable and disable
 
 cron cleanup?
 make sure paths are relative
@@ -27,3 +25,15 @@ new interface.
 
 
 // get form - should be in js probably, so that adding copy of the form will be easy
+
+custom verification on url field for .gif filetype
+use header information, rather than filename...
+
+add in tweet disable button if db has no description
+
+install.php...
+table structure
+- logic to create db if it doesn't exist
+
+//socket server needs node_module location independence
+http://stackoverflow.com/questions/13343650/how-could-i-get-access-to-socket-io-min-js-in-express

@@ -1,5 +1,11 @@
+# Disallow directory indexes and disallow all access to the listed directories
+# We wouldn't want to accidentally serve someone's db user...
 Options -Indexes
 <IfModule mod_rewrite.c>
 	RewriteEngine on
+	RewriteRule ^inc/ - [F]
+	RewriteRule ^cron/ - [F]
+	RewriteRule ^lib/ - [F]
+	RewriteRule ^socket/ - [F]
 	RewriteRule ^conf/ - [F,L]
 </IfModule>

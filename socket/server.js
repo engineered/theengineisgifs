@@ -1,4 +1,4 @@
-var io = require('C:\\Users\\guy-pod\\node_modules\\socket.io').listen(61001);
+var io = require('socket.io').listen(61001);
 
 io.sockets.on('connection', function (socket) {
 	console.log('user connected');
