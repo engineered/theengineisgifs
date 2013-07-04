@@ -1,6 +1,6 @@
 TODO
 settings
-- page title?
+- page title? NEEDS TO BE CLEAN
 - url
 - node url and port
 - cron enable and disable

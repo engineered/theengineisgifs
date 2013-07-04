@@ -9,6 +9,10 @@
  */ 
 
 require('inc/common.inc');
+if(array_key_exists('filelist', $_GET)) {
+	print filelist();
+	die();
+}
 ?>
 <!DOCTYPE html>
 <html>

@@ -155,8 +155,6 @@ function dl_new_imgs() {
 	}
 	mysql_close();
 
-	// TODO create jpg preview file for history view.
-	//
 }
 
 /* slated for removal in favor of new style */
@@ -176,7 +174,7 @@ function history($offset = 0) {
 				$rows[] = $row;
 			}
 		}
-	} else { // isnt always right, now that pagination is real
+	} else {
 		$history = '<tr class="default_row"><td><a href="/default/default.gif" target="_blank"><img class="tabled" src="/default/default_frame.gif" /></a></td><td>--</td><td>--</td></tr>';
 	}
 	mysql_close();
@@ -245,7 +243,7 @@ EOL;
  */
 function emit($filename) {
 	require '/lib/Client.php';
-	echo 'in emit';
+	//echo 'in emit';
 
 	$elephant = new ElephantIO\Client('http://theengineis.gifs:61001', 'socket.io', 1, false, true, true);
 	$elephant->init();
@@ -302,4 +300,18 @@ function img_list($offset = 0) {
 	}
 	$list_to_return['html_string'] = $img_list;
 	return json_encode($list_to_return);
+}
+
+// get distinct filenames from history
+function filelist() {
+	$db = db_connect();
+	$sql = "SELECT DISTINCT file FROM `history`";
+	$resource = mysql_query($sql);
+	$result = array();
+	if(mysql_num_rows($resource)) {
+		while($row = mysql_fetch_assoc($resource)) {
+			$result[] = $row['file'];
+		}
+	}
+	return json_encode($result);
 }

@@ -6,4 +6,8 @@ io.sockets.on('connection', function (socket) {
 		socket.broadcast.emit('client_update', data);
 		console.log('Sending data: ' + data);
 	});
+	// socket.on('timednewrequest', function() {
+	// 	// get a gif from php
+	// 	socket.broadcast.emit('client_update', data);
+	// });
 });
