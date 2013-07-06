@@ -280,7 +280,7 @@ function img_list($offset = 0) {
 		'html_string' => ''
 	);
 	$db = db_connect();
-	$sql = 'SELECT `submitted`,`displayed`,`file` FROM `history` WHERE `file` IS NOT NULL AND `removed` != 1 ORDER BY `submitted` DESC LIMIT 20 OFFSET ' . $offset;
+	$sql = 'SELECT `submitted`,`displayed`,`file` FROM `history` WHERE `file` IS NOT NULL AND `removed` != 1 ORDER BY `submitted` DESC LIMIT 20 OFFSET ' . mysql_real_escape_string($offset);
 	$resource = mysql_query($sql);
 	if(mysql_num_rows($resource)) {
 		if(mysql_num_rows($resource) < 20) { 
@@ -313,11 +313,26 @@ function img_list($offset = 0) {
 				$img_list .= '<div class="controls btn-group"><button class="btn">Display</button><button class="btn btn-warn">Remove</button><button class="btn">Tweet</button></div></div>';
 			}
 		}
+		// json for the new masonry
+		$img_json = array();
+		foreach($rows as $row) {
+			$img_json[] = array('frame' => 'archive/frames/' . $row['file'],
+								'file' => 'archive/' . $row['file'],
+								'displayed_now' => ($row['displayed'] ? true : false) );
+		}
 	}
 	$list_to_return['html_string'] = $img_list;
+	$list_to_return['img_json'] = $img_json;
 	return json_encode($list_to_return);
 }
 
+/*
+ * return json to create into masonry elements.
+ * call it from img_list so the logic isn't rewritten.
+ */
+// function masonry_json() {
+
+// }
 
 /*
  * get distinct filenames from history

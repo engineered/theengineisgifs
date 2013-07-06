@@ -1,4 +1,5 @@
 (function($){
+	var gifs = gifs || {};
 	// slated for removal in new version
 	$('.submission').click(function(e) {
 		if($('#url').val().split('.').pop() !== 'gif') {
@@ -7,6 +8,7 @@
 		}
 	});
 
+	// slated for removal in new version
 	$('#history_btn').click(function() {
 		$.ajax({
 			url:'admin.php',
@@ -21,8 +23,8 @@
 	
 	// slated for removal in new version
 	$('.delete_this').click(function() {
-		var row = $(this).parents('tr');
-		var filename = row.find('img').attr('src').substring(9);
+		gifs.row = $(this).parents('tr');
+		gifs.filename = row.find('img').attr('src').substring(9);
 		$.ajax({
 			url:'admin.php',
 			data:{
@@ -36,45 +38,43 @@
 
 	// slated for removal in new version
 	$('.show_this').click(function() {
-		var row = $(this).parents('tr');
-		var filename = row.find('img').attr('src').substring(9);
+		gifs.row = $(this).parents('tr');
+		gifs.filename = row.find('img').attr('src').substring(9);
 		$.ajax({
 			url:'admin.php',
 			data:{
 				async_display:1,
-				file:filename,
+				file:gifs.filename,
 			},
 		}).done(function() {
-			var date = new Date();
-			row.find('.date').html(date.format('mmmm d, yyyy, h:MM TT'));
+			gifs.date = new Date();
+			row.find('.date').html(gifs.date.format('mmmm d, yyyy, h:MM TT'));
 			row.addClass('success');
 			setTimeout(function() {
-				row.removeClass('success');
+				gifs.row.removeClass('success');
 			},250);
 		});
 	});
 
 	// hoverconfig for hoverintent bindings
-	var hoverConfig = {
+	gifs.hoverConfig = {
 		over: function() {
-			var still = $(this).find('img'),
-				mover;
+			gifs.still = $(this).find('img');
 			if($(this).hasClass('default')) {
-				mover = 'default/default.gif';
+				gifs.mover = 'default/default.gif';
 			} else {
-				mover = 'archive/' + still.attr('src').split('/').pop();
+				gifs.mover = 'archive/' + gifs.still.attr('src').split('/').pop();
 			}
-			still.attr('src',mover);
+			gifs.still.attr('src',gifs.mover);
 		},
 		out: function() {
-			var mover = $(this).find('img'),
-				still;
+			gifs.mover = $(this).find('img');
 			if($(this).hasClass('default')) {
-				still = 'default/default_frame.gif';
+				gifs.still = 'default/default_frame.gif';
 			} else {
-				still = 'archive/frames/' + mover.attr('src').split('/').pop();
+				gifs.still = 'archive/frames/' + gifs.mover.attr('src').split('/').pop();
 			}
-			mover.attr('src',still);
+			gifs.mover.attr('src',gifs.still);
 		},
 		sensitivity: 10,
 	};
@@ -102,15 +102,14 @@
 	$('#go-new-submission').click(function(e) {
 		e.preventDefault();
 		$('#loading').show();
-		var url = $('#url-field').val(),
-			title = $('title-field').val(),
-			dataObject = {};
+		gifs.url = $('#url-field').val();
+		gifs.title = $('title-field').val();
 
 		if(title !== '') {
-			dataObject.url = url;
-			dataObject.title = title;
+			gifs.dataObject.url = url;
+			gifs.dataObject.title = title;
 		} else {
-			dataObject.url = url;
+			gifs.dataObject.url = url;
 		}
 
 		// reflow and update the page
@@ -126,7 +125,7 @@
 
 		$.ajax({
 			url: 'rpc.php',
-			data: dataObject,
+			data: gifs.dataObject,
 			success: function(data) {
 				// hide loading
 				// draw in the blank frame
@@ -176,44 +175,62 @@
 	}
 */	
 	// handles pagination in a endless scroll style
-	var offset = 0,
-		endless = function() {
-			// may not work in some browsers
-			// gets the distance in pixels from the bottom 
-			// of the window to the bottom of the page
-			var bottomoffset = document.body.scrollHeight
-								- (window.innerHeight + window.pageYOffset);
+	gifs.offset = 0;
+	gifs.endless = function() {
+		// may not work in some browsers
+		// gets the distance in pixels from the bottom 
+		// of the window to the bottom of the page
+		gifs.bottomoffset = document.body.scrollHeight
+							- (window.innerHeight + window.pageYOffset);
 
-			if(bottomoffset < 300) {
-				$('#loading').show();
-				$.ajax({
-					url: 'rpc.php',
-					data: {
-						more:1,
-						after:offset
-					},
-					success: function(data) {
-						setTimeout(function() {$('#loading').fadeOut()}, 100);
-						data = JSON.parse(data);
-						if(data.end_of_list === 1) {
-							$(window).unbind('scroll');
-						}
-						var newFrames = $(data.html_string);
-						//$('.list').append(newFrames).masonry('appended', newFrames);
-						$('.list').append(newFrames).masonry('reload');
-						// bind hover action to new frames.
-						$('.filled').hoverIntent(hoverConfig);
-					},
-					error: function() {
-						setTimeout(function() {$('#loading').fadeOut()}, 100);
-						console.log('Error in endless scroll request');
-						return true;
+		if(gifs.bottomoffset < 300) {
+			$('#loading').show();
+			$.ajax({
+				url: 'rpc.php',
+				data: {
+					more: 1,
+					after:gifs.offset
+				},
+				success: function(data) {
+					setTimeout(function() {$('#loading').fadeOut()}, 100);
+					data = JSON.parse(data);
+					if(data.end_of_list === 1) {
+						$(window).unbind('scroll');
 					}
-				});
-				// get the next 20 next time
-				offset += 20;
-			}
-		};
+					gifs.newFrames = $(data.html_string);
+					////$('.list').append(newFrames).masonry('appended', newFrames);
+					$('.list').append(gifs.newFrames).masonry('reload');
+					// console.log(data.img_json); // array of objects.
+
+					// can this be done with ICH.js?
+					// gifs.doc = document.createDocumentFragment();
+					// for(ii = 0; ii < data.img_json.length; ii++) {
+					// 	// gifs.eles.div = document.createElement('div');
+					// 	// gifs.eles.div.class = 'frame filled';
+					// 	// gifs.eles.div2 = document.createElement('div');
+					// 	// gifs.eles.div2.class = 'inner';
+					// 	// gifs.eles.a = document.createElement('a');
+					// 	// gifs.eles.a.href = data.img_json.file;
+					// 	// gifs.eles.a.target = '_blank';
+					// 	// gifs.eles.img = document.createElement('img');
+					// 	// gifs.eles.img.src = data.
+					// 	gifs.ele = ich.
+
+					// }
+
+					// bind hover action to new frames.
+					$('.filled').hoverIntent(gifs.hoverConfig);
+				},
+				error: function() {
+					setTimeout(function() {$('#loading').fadeOut()}, 100);
+					console.log('Error in endless scroll request');
+					return true;
+				}
+			});
+			// get the next 20 next time
+			gifs.offset += 20;
+		}
+	};
 
 	// set custom validity
 	$('#url-field').blur(function() {
@@ -225,9 +242,9 @@
 	});
 
 	// initialize the page.
-	endless();
+	gifs.endless();
 	// copy the form for re-insertions
-	var formMarkup = $('.blank-form').clone(true);
+	gifs.formMarkup = $('.blank-form').clone(true);
 	$('.list').masonry({
 		itemSelector: '.frame',
 		//cornerStampSelector: '.blank-form',
@@ -236,5 +253,5 @@
 	});
 
 	// bind fetch endless to scroll event
-	$(window).bind('scroll', endless);
+	$(window).bind('scroll', gifs.endless);
 })(jQuery);
