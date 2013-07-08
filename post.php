@@ -24,7 +24,8 @@ require 'inc/common.inc';
 		<script src="js/dateFormat.js"></script>
 		<script src="js/jquery.masonry.min.js"></script>
 		<script src="js/ich.min.js"></script>
-		<script id="gifframe" type="text/html">
+		<script src="js/imagesloaded.pkgd.min.js"></script>
+		<script id="frame_displayed" type="text/html">
 			<div class="frame filled">
 				<div class="inner">
 					<a href="{{ file }}">
@@ -32,14 +33,25 @@ require 'inc/common.inc';
 					</a>
 				</div>
 				<div class="controls btn-group">
-					
+					<button class="btn btn-info">Display</button>
+					<button class="btn btn-warn">Remove</button>
+					<button class="btn">Tweet</button>
+				</div>
 			</div>
 		</script>
-		<script id="displayed" class="partial" type="text/html">
-
-		</script>
-		<script id="notdisplayed" class="partial" type="text/html">
-
+		<script id="frame_undisplayed" type="text/html">
+			<div class="frame filled">
+				<div class="inner">
+					<a href="{{ file }}">
+						<img src="{{ frame }}" />
+					</a>
+				</div>
+				<div class="controls btn-group">
+					<button class="btn">Display</button>
+					<button class="btn btn-warn">Remove</button>
+					<button class="btn">Tweet</button>
+				</div>
+			</div>
 		</script>
 	</head>
 	<body>

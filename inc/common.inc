@@ -357,3 +357,10 @@ function write_socket_client() {
 	return "<script src=\"" . $socket_info['host'] . ':' . $socket_info['port'] . "/socket.io/socket.io.js\"></script>";
 }
 
+/*
+ * New submissions are routed here.	Pushes to db, returns true or false.
+ */
+function new_submission($url, $title) {
+	post($url, $title);
+	return (mysql_error() ? true : false);
+}

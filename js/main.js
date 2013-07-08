@@ -104,19 +104,18 @@
 		$('#loading').show();
 		gifs.url = $('#url-field').val();
 		gifs.title = $('title-field').val();
-
-		if(title !== '') {
-			gifs.dataObject.url = url;
-			gifs.dataObject.title = title;
+		gifs.dataObject = {};
+		if(gifs.title !== '') {
+			gifs.dataObject.url = gifs.url;
+			gifs.dataObject.title = gifs.title;
 		} else {
-			gifs.dataObject.url = url;
+			gifs.dataObject.url = gifs.url;
 		}
 
 		// reflow and update the page
 		$('.blank-form').fadeTo(400, 0, function() {
-			$('.blank-form').html(formMarkup);
-
-			//$('.blank-form').fadeTo(100, 1);
+			$('.blank-form').html(gifs.formMarkup);
+			$('.blank-form').fadeTo(100, 1);
 		});
 		
 		// slide down
@@ -197,26 +196,28 @@
 					if(data.end_of_list === 1) {
 						$(window).unbind('scroll');
 					}
-					gifs.newFrames = $(data.html_string);
-					////$('.list').append(newFrames).masonry('appended', newFrames);
-					$('.list').append(gifs.newFrames).masonry('reload');
+					
 					// console.log(data.img_json); // array of objects.
-
-					// can this be done with ICH.js?
-					// gifs.doc = document.createDocumentFragment();
-					// for(ii = 0; ii < data.img_json.length; ii++) {
-					// 	// gifs.eles.div = document.createElement('div');
-					// 	// gifs.eles.div.class = 'frame filled';
-					// 	// gifs.eles.div2 = document.createElement('div');
-					// 	// gifs.eles.div2.class = 'inner';
-					// 	// gifs.eles.a = document.createElement('a');
-					// 	// gifs.eles.a.href = data.img_json.file;
-					// 	// gifs.eles.a.target = '_blank';
-					// 	// gifs.eles.img = document.createElement('img');
-					// 	// gifs.eles.img.src = data.
-					// 	gifs.ele = ich.
-
-					// }
+					gifs.doc = document.createDocumentFragment();
+					gifs.elems = [];
+					for(ii = 0; ii < data.img_json.length; ii++) {
+						if(data.img_json[ii].displayed_now) {
+							gifs.tmp_mkup = ich.frame_displayed(data.img_json[ii])[0];
+							gifs.doc.appendChild(gifs.tmp_mkup);
+							gifs.elems.push(gifs.tmp_mkup);
+						} else {
+							gifs.tmp_mkup = ich.frame_undisplayed(data.img_json[ii])[0];
+							gifs.doc.appendChild(gifs.tmp_mkup);
+							gifs.elems.push(gifs.tmp_mkup);
+						}
+					}
+					//gifs.doc.appendChild($(gifs.eles));
+					//$('.list').append(gifs.eles).masonry('reload');
+					$('.list').append(gifs.doc).imagesLoaded(function() {
+						$('.list').masonry('appended', gifs.elems);
+					});
+					//$('.list').append(gifs.doc).masonry('appended', gifs.elems);
+					//msnry.appended(gifs.elems);
 
 					// bind hover action to new frames.
 					$('.filled').hoverIntent(gifs.hoverConfig);
