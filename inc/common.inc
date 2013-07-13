@@ -354,7 +354,8 @@ function filelist() {
  * return a string to write in the index.php file, for the socket.io client code.
  */
 function write_socket_client() {
-	return "<script src=\"" . $socket_info['host'] . ':' . $socket_info['port'] . "/socket.io/socket.io.js\"></script>";
+	// TODO fix this to use settings2.php
+	return "<script src=\"http://theengineis.gifs:61001/socket.io/socket.io.js\"></script>";
 }
 
 /*

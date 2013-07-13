@@ -14,8 +14,7 @@ require 'inc/common.inc';
 		<link rel="stylesheet" href="css/front.css">
 	</head>
 	<body>
-		<!--<img src='default/default.gif' />-->
-		<?php print_r($socket_info); ?>
+		<img src='default/default.gif' />
 		<?php echo write_socket_client(); ?>
 		<script src="js/client_update.js"></script>
 	</body>

@@ -28,7 +28,7 @@ $db_info = array(
 /*
  * socket.io information
  */
-$socket_info = array(
+$socketinfo = array(
 	'host' => 'localhost',
 	'port' => 61001,
 );
